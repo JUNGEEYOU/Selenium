@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 # 명시적 대기를 위해서
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import time
 # 인터파크 투어 사이트에서 여행지를 입력 후 검색 -> 잠시후 -> 결과
 # 로그인 시, PC 웹 사이트에서 처리가 어려울 경우 -> 모바일 로그인 진입
 # 1. 모듈 가져오기
@@ -14,7 +15,7 @@ keyword = "괌"
 
 # 3. 드라이버 로드
     # 차후 -> 옵션 부여하여( 프록시, 에이전트 조작, 이미지를 배제)
-    # 크롤링을 오래돌리면 => 임시파일들이 쌓인다!!!! -> tmp 파일 삭제
+    # 크롤링을 오래돌리면 => 임시파`일들이 쌓인다!!!! -> tmp 파일 삭제
 driver = wd.Chrome(executable_path='./chromedriver.exe')
 
 # 4. 사이트 접속 (get)
@@ -44,3 +45,18 @@ except Exception as e:
 
 # 8. 더보기 클릭 => 게시판 진입
 driver.find_element_by_css_selector('div.oTravelBox > ul > li.moreBtnWrap > .moreBtn').click()
+
+# 게시판에서 데이터를 가져올 때, 데이터가 많으면 세션(로그인을 해서 접근되는 사이트린 경우> 특정 단위별로 로그아웃 로그인 계속 시도)
+# 특정 게시물이 사라질 경우 => 팝업 발생(없는 경우....) => 팝업 처리 검토
+# 게시판 스캔 시, => 임계점을 모름! => 수집이 안되는 순간
+# 게시판 스캔 => 메타 정보 획득 => loop를 돌려서 일괄적으로 방문 접근 처리
+# 페이지 이동 : searchModule.SetCategoryList(2, '') 스크립트 실행!!!
+# 68은 임시값, 게시물을 넘어갈 경우 현상을 확인차
+for page in range(1,68):
+    try:
+        # 자바스트립트 구동하기
+        driver.execute_script("searchModule.SetCategoryList(%s, '')" %page)
+        time.sleep(2)
+        print("%s 페이지 이동" %page)
+    except Exception as e1:
+        print('오류',  e1)
