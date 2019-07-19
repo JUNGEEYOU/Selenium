@@ -65,3 +65,12 @@ Updated: Jul 17, 2019 11:56 AM
 # 6. 특정 attribute 가져오기
 
     li.find_element_by_css_selector('img').get_attribute('src')
+
+# 7.종료
+
+> 항상 넣어줘야하는 부분
+
+    driver.close()
+    driver.quit()
+    import sys
+    sys.exit()

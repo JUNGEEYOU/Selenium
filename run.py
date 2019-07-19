@@ -74,6 +74,8 @@ for page in range(1, 2):  # 68):
             for info in li.find_elements_by_css_selector('.info-row .proInfo'):
                 print(info.text)
             print ('='*80)
+            # 데이터 모음
+            # 데이터가 부족하거나 없을 수도 있으므로 직접 인덱스로 표현하는 것은 위험함 (li.find_elements_by_css_selector('.info-row .proInfo'))
             obj = TourInfo(
                 title=li.find_element_by_css_selector('h5.proTit').text,
                 price= li.find_element_by_css_selector('.proPrice').text,
@@ -87,3 +89,20 @@ for page in range(1, 2):  # 68):
 
 print(tour_list, len(tour_list))
 # 수집한 정보 개수를 루프 => 페이지 방문 => 콘텐츠 획득(상품상세정보) => DB
+for tour in tour_list:
+    # tour => tourInfo
+    print(type(tour))
+    # 링크 데이터에서 실 데이터 획득
+    arr = tour.link.split(',',)
+    if arr:
+        link = arr[0].replace("searchModule.OnClickDetail(", "")
+        detail_url = link[1:-1]
+        #상세 페이지 이동 : url 값이 완성된 형태인지 확인 (http://도메인~)
+        driver.get(detail_url)
+        time.sleep(2)
+
+# 종료
+driver.close()
+driver.quit()
+import sys
+sys.exit()
