@@ -51,3 +51,17 @@ Updated: Jul 17, 2019 11:56 AM
 # 4. 자바스크립트 구동하기
 
     driver.execute_script("searchModule.SetCategoryList(%s, '')" %page)
+    
+ # 5. element 접근
+
+## 1) driver.find_elements_by_css_selector
+
+> 여러개의 셀렉터를 가져온다
+
+## 2) driver.find_element_by_css_selector
+
+> 첫번째 만난 셀렉터를 가져온다.
+
+# 6. 특정 attribute 가져오기
+
+    li.find_element_by_css_selector('img').get_attribute('src')

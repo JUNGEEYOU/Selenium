@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+from Tour import TourInfo
 # 인터파크 투어 사이트에서 여행지를 입력 후 검색 -> 잠시후 -> 결과
 # 로그인 시, PC 웹 사이트에서 처리가 어려울 경우 -> 모바일 로그인 진입
 # 1. 모듈 가져오기
@@ -11,7 +12,9 @@ import time
 
 # 2. 사전에 필요한 정보를 로드 => 디비 or 쉘, 베치 파일에서 인자로 받아서 세팅
 main_url = "https://tour.interpark.com/"
-keyword = "괌"
+keyword = "상해"
+# 상품 정보를 담는 리스트 (TourInfo 리스트)
+tour_list =[]
 
 # 3. 드라이버 로드
     # 차후 -> 옵션 부여하여( 프록시, 에이전트 조작, 이미지를 배제)
@@ -52,11 +55,35 @@ driver.find_element_by_css_selector('div.oTravelBox > ul > li.moreBtnWrap > .mor
 # 게시판 스캔 => 메타 정보 획득 => loop를 돌려서 일괄적으로 방문 접근 처리
 # 페이지 이동 : searchModule.SetCategoryList(2, '') 스크립트 실행!!!
 # 68은 임시값, 게시물을 넘어갈 경우 현상을 확인차
-for page in range(1,68):
+for page in range(1, 2):  # 68):
     try:
         # 자바스트립트 구동하기
         driver.execute_script("searchModule.SetCategoryList(%s, '')" %page)
         time.sleep(2)
         print("%s 페이지 이동" %page)
+        # 여러 사이트에서 정보를 수집할 경우, 공통 정보 정의 단계 필요
+        # 상품명, 코멘트, 기간 1, 기간 2, 가격, 평점, 썸네일, 링크(상품상세정보)
+        boxItems = driver.find_elements_by_css_selector('div.oTravelBox >.boxList>li')         # li 아래 있는 여러 박스들을 find_elements_by_css_selector로 수집
+        for li in boxItems:
+            # 이미지(썸네일)을 링크값을 사용할것인가? 아니면 직접 다움로드해서 우리 서버에 업로드(ftp) 할것인가?
+            print ('썸네일', li.find_element_by_css_selector('img').get_attribute('src'))
+            print('링크', li.find_element_by_css_selector('a').get_attribute('onclick'))
+            print ('상품명', li.find_element_by_css_selector('h5.proTit').text)
+            print('코멘트', li.find_element_by_css_selector('.proSub').text)
+            print('가격', li.find_element_by_css_selector('.proPrice').text)
+            for info in li.find_elements_by_css_selector('.info-row .proInfo'):
+                print(info.text)
+            print ('='*80)
+            obj = TourInfo(
+                title=li.find_element_by_css_selector('h5.proTit').text,
+                price= li.find_element_by_css_selector('.proPrice').text,
+                area=li.find_elements_by_css_selector('.info-row .proInfo')[1].text,
+                link= li.find_element_by_css_selector('a').get_attribute('onclick'),
+                img = li.find_element_by_css_selector('img').get_attribute('src')
+            )
+            tour_list.append(obj)
     except Exception as e1:
         print('오류',  e1)
+
+print(tour_list, len(tour_list))
+# 수집한 정보 개수를 루프 => 페이지 방문 => 콘텐츠 획득(상품상세정보) => DB
